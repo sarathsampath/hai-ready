@@ -6,8 +6,8 @@ const AddBook = ({ onClose, onBookAdded }) => {
         title: '',
         author: '',
         stockQuantity: '',
-        recommended: false,
-        imageUrl: ''
+        imageUrl: '',
+        description: ''
     });
 
     const [errors, setErrors] = useState({});
@@ -126,7 +126,10 @@ const AddBook = ({ onClose, onBookAdded }) => {
     return (
         <div className="add-book-container">
             <Notification message={notification.message} type={notification.type} />
-            <h2>Add New Book</h2>
+            <div className="add-book-header">
+                <h2>Add New Book</h2>
+                <button className="close-button" onClick={onClose}>&times;</button>
+            </div>
             <form onSubmit={handleSubmit} className="add-book-form">
                 <div className="form-group">
                     <label htmlFor="title">Title *</label>
@@ -179,16 +182,15 @@ const AddBook = ({ onClose, onBookAdded }) => {
                     />
                 </div>
 
-                <div className="form-group checkbox">
-                    <label>
-                        <input
-                            type="checkbox"
-                            name="recommended"
-                            checked={formData.recommended}
-                            onChange={handleInputChange}
-                        />
-                        Recommended
-                    </label>
+                <div className="form-group">
+                    <label htmlFor="description">Description</label>
+                    <textarea
+                        id="description"
+                        name="description"
+                        value={formData.description}
+                        onChange={handleInputChange}
+                        rows="4"
+                    />
                 </div>
 
                 <button

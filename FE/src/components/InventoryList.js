@@ -13,8 +13,8 @@ const InventoryList = () => {
     const [editingDescription, setEditingDescription] = useState({});
     const [successMessage, setSuccessMessage] = useState('');
     const [disabledInputs, setDisabledInputs] = useState({});
-    const [showDeleteConfirm, setShowDeleteConfirm] = useState(null);
     const [showAddModal, setShowAddModal] = useState(false);
+    const [editingBook, setEditingBook] = useState(null);
 
     const fetchBooks = async () => {
         try {
@@ -44,40 +44,43 @@ const InventoryList = () => {
         }));
     };
 
-    const handleImageUrlChange = (bookId, value) => {
-        setEditingImageUrl(prev => ({
+    const handleStockDoubleClick = (bookId, currentStock) => {
+        setEditingStock(prev => ({
             ...prev,
-            [bookId]: value
+            [bookId]: currentStock.toString()
         }));
     };
 
-    const handleDescriptionChange = (bookId, value) => {
-        setEditingDescription(prev => ({
-            ...prev,
-            [bookId]: value
-        }));
-    };
-
-    const updateImageUrl = async (bookId) => {
+    const handleStockIncrement = async (bookId, currentStock) => {
         try {
             const auth = JSON.parse(localStorage.getItem('auth'));
             const token = auth?.token;
-            const newImageUrl = editingImageUrl[bookId];
-
-            await axios.put(
-                `${API_URL}/books/${bookId}`,
-                { imageUrl: newImageUrl },
+            await axios.patch(
+                `${API_URL}/books/${bookId}/stock`,
+                { stockQuantity: currentStock + 1 },
                 { headers: { Authorization: `Bearer ${token}` }}
             );
-
-            setSuccessMessage('Image URL updated successfully');
-            setEditingImageUrl(prev => ({ ...prev, [bookId]: '' }));
             fetchBooks();
-
-            setTimeout(() => setSuccessMessage(''), 3000);
         } catch (err) {
-            setError('Failed to update image URL. Please try again.');
-            console.error('Error updating image URL:', err);
+            setError('Failed to update stock. Please try again.');
+            console.error('Error updating stock:', err);
+        }
+    };
+
+    const handleStockDecrement = async (bookId, currentStock) => {
+        if (currentStock <= 0) return;
+        try {
+            const auth = JSON.parse(localStorage.getItem('auth'));
+            const token = auth?.token;
+            await axios.patch(
+                `${API_URL}/books/${bookId}/stock`,
+                { stockQuantity: currentStock - 1 },
+                { headers: { Authorization: `Bearer ${token}` }}
+            );
+            fetchBooks();
+        } catch (err) {
+            setError('Failed to update stock. Please try again.');
+            console.error('Error updating stock:', err);
         }
     };
 
@@ -98,50 +101,49 @@ const InventoryList = () => {
                 { headers: { Authorization: `Bearer ${token}` }}
             );
 
-            // Disable the input and button for this book
-            setDisabledInputs(prev => ({
-                ...prev,
-                [bookId]: true
-            }));
-
             setSuccessMessage('Stock updated successfully');
-            setEditingStock(prev => ({ ...prev, [bookId]: newStock.toString() }));
+            setEditingStock(prev => ({ ...prev, [bookId]: '' }));
             fetchBooks();
 
-            // Re-enable the input after 5 seconds
-            setTimeout(() => {
-                setDisabledInputs(prev => ({
-                    ...prev,
-                    [bookId]: false
-                }));
-                setSuccessMessage('');
-            }, 5000);
+            setTimeout(() => setSuccessMessage(''), 3000);
         } catch (err) {
             setError('Failed to update stock. Please try again.');
             console.error('Error updating stock:', err);
         }
     };
 
-    const updateDescription = async (bookId) => {
+    const handleEdit = (book) => {
+        setEditingBook(book);
+        setEditingImageUrl(prev => ({ ...prev, [book._id]: book.imageUrl || '' }));
+        setEditingDescription(prev => ({ ...prev, [book._id]: book.description || '' }));
+    };
+
+    const handleUpdate = async (bookId) => {
         try {
             const auth = JSON.parse(localStorage.getItem('auth'));
             const token = auth?.token;
-            const newDescription = editingDescription[bookId];
+            
+            const updates = {
+                imageUrl: editingImageUrl[bookId],
+                description: editingDescription[bookId]
+            };
 
             await axios.put(
                 `${API_URL}/books/${bookId}`,
-                { description: newDescription },
+                updates,
                 { headers: { Authorization: `Bearer ${token}` }}
             );
 
-            setSuccessMessage('Description updated successfully');
+            setSuccessMessage('Book updated successfully');
+            setEditingBook(null);
+            setEditingImageUrl(prev => ({ ...prev, [bookId]: '' }));
             setEditingDescription(prev => ({ ...prev, [bookId]: '' }));
             fetchBooks();
 
             setTimeout(() => setSuccessMessage(''), 3000);
         } catch (err) {
-            setError('Failed to update description. Please try again.');
-            console.error('Error updating description:', err);
+            setError('Failed to update book. Please try again.');
+            console.error('Error updating book:', err);
         }
     };
 
@@ -189,7 +191,10 @@ const InventoryList = () => {
                         color: 'white',
                         border: 'none',
                         borderRadius: '4px',
-                        cursor: 'pointer'
+                        cursor: 'pointer',
+                        width: '240px',
+                        position: 'absolute',
+                        right: '160px'
                     }}
                 >
                     Add New Book
@@ -267,6 +272,7 @@ const InventoryList = () => {
                                         src={book.imageUrl}
                                         alt={book.title}
                                         className="book-image"
+                                        style={{ maxWidth: '150px', maxHeight: '150px', objectFit: 'contain' }}
                                         onError={(e) => {
                                             e.target.onerror = null;
                                             e.target.src = '';
@@ -275,76 +281,139 @@ const InventoryList = () => {
                                         }}
                                     />
                                 ) : (
-                                    <div className="book-image placeholder">No Image</div>
+                                    <div className="book-image placeholder" style={{ width: '100px', height: '150px' }}>No Image</div>
                                 )}
-                                <div className="image-url-control">
-                                    <input
-                                        type="text"
-                                        value={editingImageUrl[book._id] || ''}
-                                        onChange={(e) => handleImageUrlChange(book._id, e.target.value)}
-                                        placeholder="Enter image URL"
-                                    />
-                                    <button
-                                        onClick={() => updateImageUrl(book._id)}
-                                        disabled={!editingImageUrl[book._id]}
-                                    >
-                                        Update
-                                    </button>
-                                </div>
                             </td>
                             <td>{book.title}</td>
                             <td>{book.author}</td>
                             <td>
                                 <div className="stock-control">
-                                    <span>{book.stockQuantity}</span>
-                                    <div className="stock-update">
+                                    <button 
+                                        className="stock-button"
+                                        onClick={() => handleStockDecrement(book._id, book.stockQuantity)}
+                                        disabled={book.stockQuantity <= 0}
+                                    >
+                                        -
+                                    </button>
+                                    {editingStock[book._id] !== undefined ? (
                                         <input
                                             type="number"
-                                            min="0"
-                                            value={editingStock[book._id] || ''}
+                                            className="stock-value editing"
+                                            value={editingStock[book._id]}
                                             onChange={(e) => handleStockChange(book._id, e.target.value)}
-                                            placeholder="New stock"
-                                            disabled={disabledInputs[book._id]}
+                                            onBlur={() => {
+                                                if (editingStock[book._id] !== undefined) {
+                                                    updateStock(book._id);
+                                                }
+                                            }}
+                                            min="0"
                                         />
-                                        <button
-                                            onClick={() => updateStock(book._id)}
-                                            disabled={!editingStock[book._id] || disabledInputs[book._id]}
+                                    ) : (
+                                        <span 
+                                            className="stock-value"
+                                            onDoubleClick={() => handleStockDoubleClick(book._id, book.stockQuantity)}
                                         >
-                                            Update
-                                        </button>
-                                    </div>
+                                            {book.stockQuantity}
+                                        </span>
+                                    )}
+                                    <button 
+                                        className="stock-button"
+                                        onClick={() => handleStockIncrement(book._id, book.stockQuantity)}
+                                    >
+                                        +
+                                    </button>
                                 </div>
                             </td>
                             <td>
                                 <div className="description-control">
+                                        <span>{book.description || "No description for the book"}</span>
                                     <span>{book.description}</span>
-                                    <div className="description-update">
-                                        <textarea
-                                            value={editingDescription[book._id] || ''}
-                                            onChange={(e) => handleDescriptionChange(book._id, e.target.value)}
-                                            placeholder="Enter description"
-                                        />
-                                        <button
-                                            onClick={() => updateDescription(book._id)}
-                                            disabled={!editingDescription[book._id]}
-                                        >
-                                            Update
-                                        </button>
-                                    </div>
                                 </div>
                             </td>
                             <td>
-                                <button
-                                    className="delete-btn"
-                                    onClick={() => deleteBook(book._id)}
-                                >
-                                    Delete
-                                </button>
+                                <div className="action-icons">
+                                    <button 
+                                        className="icon-button edit"
+                                        onClick={() => handleEdit(book)}
+                                        title="Edit"
+                                    >
+                                        ✎
+                                    </button>
+                                    <button 
+                                        className="icon-button delete"
+                                        onClick={() => deleteBook(book._id)}
+                                        title="Delete"
+                                    >
+                                        ×
+                                    </button>
+                                </div>
                             </td>
                         </tr>
                     ))}
                 </tbody>
             </table>
+
+            {editingBook && (
+                <div className="modal-overlay" style={{
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    zIndex: 1000
+                }}>
+                    <div className="modal-content" style={{
+                        backgroundColor: 'white',
+                        padding: '20px',
+                        borderRadius: '8px',
+                        maxWidth: '500px',
+                        width: '90%'
+                    }}>
+                        <h3>Edit Book</h3>
+                        <div style={{ marginBottom: '15px' }}>
+                            <label>Image URL:</label>
+                            <input
+                                type="text"
+                                value={editingImageUrl[editingBook._id] || ''}
+                                onChange={(e) => setEditingImageUrl(prev => ({
+                                    ...prev,
+                                    [editingBook._id]: e.target.value
+                                }))}
+                                style={{ width: '100%', padding: '8px', marginTop: '5px' }}
+                            />
+                        </div>
+                        <div style={{ marginBottom: '15px' }}>
+                            <label>Description:</label>
+                            <textarea
+                                value={editingDescription[editingBook._id] || ''}
+                                onChange={(e) => setEditingDescription(prev => ({
+                                    ...prev,
+                                    [editingBook._id]: e.target.value
+                                }))}
+                                style={{ width: '100%', padding: '8px', marginTop: '5px', minHeight: '100px' }}
+                            />
+                        </div>
+                        <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+                            <button
+                                onClick={() => setEditingBook(null)}
+                                style={{ backgroundColor: '#6c757d' }}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={() => handleUpdate(editingBook._id)}
+                                style={{ backgroundColor: '#007bff' }}
+                            >
+                                Save Changes
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

@@ -32,127 +32,9 @@
     background-color: #f9f9f9;
 }
 
-.stock-control {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.stock-update {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.stock-controls {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-}
-
-.out-of-stock-label {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 14px;
-    color: #666;
-    line-height: 1;
-}
-
-.out-of-stock-label input[type="checkbox"] {
-    margin: 0;
-    cursor: pointer;
-}
-
-.stock-update input {
-    width: 80px;
-    padding: 5px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-}
-
-.description-control {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    max-width: 300px;
-}
-
-.description-control span {
-    font-size: 14px;
-    color: #333;
-    line-height: 1.4;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-}
-
-.description-update {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-}
-
-.description-update textarea {
-    width: 100%;
-    min-height: 80px;
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    resize: vertical;
-    font-family: inherit;
-    font-size: 14px;
-}
-
-button {
-    padding: 6px 12px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: background-color 0.2s;
-    background-color: #007bff;
-    color: white;
-}
-
-button:hover {
-    opacity: 0.9;
-}
-
-button:disabled {
-    background-color: #ddd;
-    cursor: not-allowed;
-}
-
-.delete-btn {
-    background-color: #f44336;
-    color: white;
-}
-
-.delete-btn:hover {
-    opacity: 0.9;
-}
-
-.inventory-loading {
-    text-align: center;
-    padding: 20px;
-    font-size: 18px;
-    color: #666;
-}
-
-.inventory-error {
-    color: #f44336;
-    padding: 20px;
-    text-align: center;
-    background-color: #ffebee;
-    border-radius: 4px;
-    margin: 20px 0;
-}
-
 .book-image {
-    width: 100px;
-    height: 140px;
+    width: 60px;
+    height: 80px;
     object-fit: cover;
     border-radius: 4px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -168,18 +50,93 @@ button:disabled {
     text-align: center;
 }
 
-.image-url-control {
+.stock-control {
     display: flex;
-    gap: 5px;
     align-items: center;
+    gap: 8px;
+}
+
+.stock-value {
+    min-width: 40px;
+    text-align: center;
+    padding: 4px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.stock-value.editing {
+    border-color: #ddd;
+    background: white;
+    outline: none;
+}
+
+.stock-buttons {
+    display: flex;
+    gap: 4px;
+}
+
+.stock-button {
+    background: none;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #666;
+    padding: 0;
+}
+
+.stock-button:hover {
+    background-color: #f0f0f0;
+}
+
+.action-icons {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.icon-button {
+    background: none;
+    border: none;
+    padding: 4px;
+    cursor: pointer;
+    color: #666;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.icon-button:hover {
+    background-color: #f0f0f0;
+}
+
+.icon-button.edit {
+    color: #2196F3;
+}
+
+.icon-button.delete {
+    color: #f44336;
+}
+
+.description-control {
     max-width: 300px;
 }
 
-.image-url-control input {
-    flex: 1;
-    padding: 5px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
+.description-control span {
+    font-size: 14px;
+    color: #333;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 
 .success-message {
@@ -199,6 +156,22 @@ button:disabled {
     z-index: 1000;
     min-width: 300px;
     max-width: 600px;
+}
+
+.inventory-loading {
+    text-align: center;
+    padding: 20px;
+    font-size: 18px;
+    color: #666;
+}
+
+.inventory-error {
+    color: #f44336;
+    padding: 20px;
+    text-align: center;
+    background-color: #ffebee;
+    border-radius: 4px;
+    margin: 20px 0;
 }
 
 @keyframes fadeInOut {
