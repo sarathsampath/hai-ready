@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import { API_URL } from "../config";
 import "./BookGrid.css";
 
-const FeedbackModal = ({ isOpen, onClose, bookId, onSubmit }) => {
+export const FeedbackModal = ({ isOpen, onClose, bookId, onSubmit }) => {
   const [feedback, setFeedback] = useState("");
   const [error, setError] = useState("");
   const charLimit = 500;
@@ -65,6 +66,7 @@ const FeedbackModal = ({ isOpen, onClose, bookId, onSubmit }) => {
 };
 
 const BookGrid = () => {
+  const navigate = useNavigate();
   const [books, setBooks] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -120,7 +122,12 @@ const BookGrid = () => {
     <div className="book-grid-container">
       <div className="book-grid">
         {books.map((book) => (
-          <div key={book._id} className="book-card">
+          <div
+            key={book._id}
+            className="book-card"
+            onClick={() => navigate(`/book/${book._id}`)}
+            style={{ cursor: "pointer" }}
+          >
             {book.imageUrl ? (
               <img
                 src={book.imageUrl}
