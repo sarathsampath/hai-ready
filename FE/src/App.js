@@ -5,6 +5,7 @@ import Signup from './components/Signup';
 import Navigation from './components/Navigation';
 import ProtectedRoute from './components/ProtectedRoute';
 import InventoryList from './components/InventoryList';
+import BookGrid from './components/BookGrid';
 
 // Placeholder components for protected routes
 const Cart = () => <div>Shopping Cart (User Only)</div>;
@@ -80,8 +81,28 @@ function App() {
               }
             />
 
-            {/* Default route */}
-            <Route path="/" element={<Navigate to="/login" replace />} />
+            {/* User Routes */}
+            <Route
+              path="/books"
+              element={
+                <ProtectedRoute
+                  element={<BookGrid />}
+                  allowedRoles={['User', 'Admin']}
+                />
+              }
+            />
+
+            {/* Default route - redirect to books for authenticated users */}
+            <Route
+              path="/"
+              element={
+                localStorage.getItem('auth') ? (
+                  <Navigate to="/books" replace />
+                ) : (
+                  <Navigate to="/login" replace />
+                )
+              }
+            />
           </Routes>
         </main>
       </div>

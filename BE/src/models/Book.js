@@ -24,6 +24,11 @@ const bookSchema = new mongoose.Schema({
         type: String,
         trim: true,
         default: '' // Default empty string if no image URL is provided
+    },
+    description: {
+        type: String,
+        trim: true,
+        default: ''
     }
 }, {
     timestamps: true

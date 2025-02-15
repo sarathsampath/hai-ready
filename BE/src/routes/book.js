@@ -7,7 +7,7 @@ const router = express.Router();
 // Create a new book
 router.post('/books', protect, authorize('Admin'), async (req, res) => {
     try {
-        const { title, author, stockQuantity, recommended, imageUrl } = req.body;
+        const { title, author, stockQuantity, recommended, imageUrl, description } = req.body;
 
         if (!title || !author || typeof stockQuantity !== 'number' || stockQuantity < 0) {
             return res.status(400).json({ error: 'Please provide valid book details' });
@@ -18,7 +18,8 @@ router.post('/books', protect, authorize('Admin'), async (req, res) => {
             author,
             stockQuantity,
             recommended: recommended || false,
-            imageUrl: imageUrl || ''
+            imageUrl: imageUrl || '',
+            description: description || ''
         });
 
         await book.save();
@@ -31,7 +32,7 @@ router.post('/books', protect, authorize('Admin'), async (req, res) => {
 // Update book details
 router.put('/books/:id', protect, authorize('Admin'), async (req, res) => {
     try {
-        const { title, author, stockQuantity, recommended, imageUrl } = req.body;
+        const { title, author, stockQuantity, recommended, imageUrl, description } = req.body;
         const updates = {};
 
         if (title) updates.title = title;
@@ -39,6 +40,7 @@ router.put('/books/:id', protect, authorize('Admin'), async (req, res) => {
         if (typeof stockQuantity === 'number' && stockQuantity >= 0) updates.stockQuantity = stockQuantity;
         if (typeof recommended === 'boolean') updates.recommended = recommended;
         if (imageUrl !== undefined) updates.imageUrl = imageUrl;
+        if (description !== undefined) updates.description = description;
 
         const book = await Book.findByIdAndUpdate(
             req.params.id,
@@ -57,7 +59,7 @@ router.put('/books/:id', protect, authorize('Admin'), async (req, res) => {
 });
 
 // Get all books
-router.get('/books', protect, authorize('Admin'), async (req, res) => {
+router.get('/books', protect, authorize('Admin', 'User'), async (req, res) => {
     try {
         const books = await Book.find({});
         res.json(books);

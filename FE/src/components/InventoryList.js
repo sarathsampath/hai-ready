@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { API_URL } from '../config';
 import './InventoryList.css';
 
 const InventoryList = () => {
@@ -8,15 +9,15 @@ const InventoryList = () => {
     const [loading, setLoading] = useState(true);
     const [editingStock, setEditingStock] = useState({});
     const [editingImageUrl, setEditingImageUrl] = useState({});
+    const [editingDescription, setEditingDescription] = useState({});
     const [successMessage, setSuccessMessage] = useState('');
     const [disabledInputs, setDisabledInputs] = useState({});
-    const [showDeleteConfirm, setShowDeleteConfirm] = useState(null);
 
     const fetchBooks = async () => {
         try {
             const auth = JSON.parse(localStorage.getItem('auth'));
             const token = auth?.token;
-            const response = await axios.get('http://localhost:7001/api/books', {
+            const response = await axios.get(`${API_URL}/books`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setBooks(response.data);
@@ -47,6 +48,13 @@ const InventoryList = () => {
         }));
     };
 
+    const handleDescriptionChange = (bookId, value) => {
+        setEditingDescription(prev => ({
+            ...prev,
+            [bookId]: value
+        }));
+    };
+
     const updateImageUrl = async (bookId) => {
         try {
             const auth = JSON.parse(localStorage.getItem('auth'));
@@ -54,7 +62,7 @@ const InventoryList = () => {
             const newImageUrl = editingImageUrl[bookId];
 
             await axios.put(
-                `http://localhost:7001/api/books/${bookId}`,
+                `${API_URL}/books/${bookId}`,
                 { imageUrl: newImageUrl },
                 { headers: { Authorization: `Bearer ${token}` }}
             );
@@ -82,7 +90,7 @@ const InventoryList = () => {
             }
 
             await axios.patch(
-                `http://localhost:7001/api/books/${bookId}/stock`,
+                `${API_URL}/books/${bookId}/stock`,
                 { stockQuantity: newStock },
                 { headers: { Authorization: `Bearer ${token}` }}
             );
@@ -111,44 +119,26 @@ const InventoryList = () => {
         }
     };
 
-    const deleteRecommendation = async (bookId) => {
+    const updateDescription = async (bookId) => {
         try {
             const auth = JSON.parse(localStorage.getItem('auth'));
             const token = auth?.token;
-            const response = await axios.delete(
-                `http://localhost:7001/api/inventory/delete-recommendation/${bookId}`,
+            const newDescription = editingDescription[bookId];
+
+            await axios.put(
+                `${API_URL}/books/${bookId}`,
+                { description: newDescription },
                 { headers: { Authorization: `Bearer ${token}` }}
             );
 
-            setSuccessMessage(response.data.message);
-            setShowDeleteConfirm(null);
+            setSuccessMessage('Description updated successfully');
+            setEditingDescription(prev => ({ ...prev, [bookId]: '' }));
             fetchBooks();
 
             setTimeout(() => setSuccessMessage(''), 3000);
         } catch (err) {
-            const errorMessage = err.response?.data?.error || 'Failed to delete recommendation. Please try again.';
-            setError(errorMessage);
-            console.error('Error deleting recommendation:', err);
-        }
-    };
-
-    const toggleRecommendation = async (bookId, currentStatus) => {
-        try {
-            const auth = JSON.parse(localStorage.getItem('auth'));
-            const token = auth?.token;
-            await axios.patch(
-                `http://localhost:7001/api/books/${bookId}/recommend`,
-                { recommended: !currentStatus },
-                { headers: { Authorization: `Bearer ${token}` }}
-            );
-
-            setSuccessMessage('Recommendation status updated successfully');
-            fetchBooks();
-
-            setTimeout(() => setSuccessMessage(''), 3000);
-        } catch (err) {
-            setError('Failed to update recommendation status. Please try again.');
-            console.error('Error updating recommendation:', err);
+            setError('Failed to update description. Please try again.');
+            console.error('Error updating description:', err);
         }
     };
 
@@ -161,7 +151,7 @@ const InventoryList = () => {
             const auth = JSON.parse(localStorage.getItem('auth'));
             const token = auth?.token;
             await axios.delete(
-                `http://localhost:7001/api/books/${bookId}`,
+                `${API_URL}/books/${bookId}`,
                 { headers: { Authorization: `Bearer ${token}` }}
             );
 
@@ -198,7 +188,7 @@ const InventoryList = () => {
                         <th>Title</th>
                         <th>Author</th>
                         <th>Stock</th>
-                        <th>Recommended</th>
+                        <th>Description</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -260,36 +250,22 @@ const InventoryList = () => {
                                 </div>
                             </td>
                             <td>
-                                {book.recommended ? (
-                                    <>
+                                <div className="description-control">
+                                    <span>{book.description}</span>
+                                    <div className="description-update">
+                                        <textarea
+                                            value={editingDescription[book._id] || ''}
+                                            onChange={(e) => handleDescriptionChange(book._id, e.target.value)}
+                                            placeholder="Enter description"
+                                        />
                                         <button
-                                            className="delete-recommendation-btn"
-                                            onClick={() => setShowDeleteConfirm(book._id)}
+                                            onClick={() => updateDescription(book._id)}
+                                            disabled={!editingDescription[book._id]}
                                         >
-                                            Delete Recommendation
+                                            Update
                                         </button>
-                                        {showDeleteConfirm === book._id && (
-                                            <div className="confirmation-dialog">
-                                                <p>Are you sure you want to delete this recommendation?</p>
-                                                <div className="confirmation-buttons">
-                                                    <button onClick={() => deleteRecommendation(book._id)}>
-                                                        Confirm
-                                                    </button>
-                                                    <button onClick={() => setShowDeleteConfirm(null)}>
-                                                        Cancel
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        )}
-                                    </>
-                                ) : (
-                                    <button
-                                        className="recommend-btn"
-                                        onClick={() => toggleRecommendation(book._id, book.recommended)}
-                                    >
-                                        Add Recommendation
-                                    </button>
-                                )}
+                                    </div>
+                                </div>
                             </td>
                             <td>
                                 <button
