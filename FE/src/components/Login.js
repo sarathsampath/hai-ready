@@ -106,7 +106,7 @@ const Login = () => {
       if (data.user.role === 'Admin') {
         navigate('/inventory');
       } else {
-        navigate('/cart');
+        navigate('/books');
       }
     } catch (error) {
       setLoginError(error.message || 'An error occurred during login');

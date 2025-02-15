@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { API_URL } from '../config';
-import './InventoryList.css';
-import AddBook from './AddBook';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { API_URL } from "../config";
+import "./InventoryList.css";
 
 const InventoryList = () => {
     const [books, setBooks] = useState([]);
@@ -12,37 +11,35 @@ const InventoryList = () => {
     const [editingImageUrl, setEditingImageUrl] = useState({});
     const [editingDescription, setEditingDescription] = useState({});
     const [successMessage, setSuccessMessage] = useState('');
-    const [disabledInputs, setDisabledInputs] = useState({});
-    const [showAddModal, setShowAddModal] = useState(false);
     const [editingBook, setEditingBook] = useState(null);
 
-    const fetchBooks = async () => {
-        try {
-            const auth = JSON.parse(localStorage.getItem('auth'));
-            const token = auth?.token;
-            const response = await axios.get(`${API_URL}/books`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-            setBooks(response.data);
-            setError(null);
-        } catch (err) {
-            setError('Failed to fetch books. Please try again later.');
-            console.error('Error fetching books:', err);
-        } finally {
-            setLoading(false);
-        }
-    };
+  const fetchBooks = async () => {
+    try {
+      const auth = JSON.parse(localStorage.getItem("auth"));
+      const token = auth?.token;
+      const response = await axios.get(`${API_URL}/books`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setBooks(response.data);
+      setError(null);
+    } catch (err) {
+      setError("Failed to fetch books. Please try again later.");
+      console.error("Error fetching books:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    useEffect(() => {
-        fetchBooks();
-    }, []);
+  useEffect(() => {
+    fetchBooks();
+  }, []);
 
-    const handleStockChange = (bookId, value) => {
-        setEditingStock(prev => ({
-            ...prev,
-            [bookId]: value
-        }));
-    };
+  const handleStockChange = (bookId, value) => {
+    setEditingStock((prev) => ({
+      ...prev,
+      [bookId]: value,
+    }));
+  };
 
     const handleStockDoubleClick = (bookId, currentStock) => {
         setEditingStock(prev => ({
@@ -84,16 +81,16 @@ const InventoryList = () => {
         }
     };
 
-    const updateStock = async (bookId) => {
-        try {
-            const auth = JSON.parse(localStorage.getItem('auth'));
-            const token = auth?.token;
-            const newStock = parseInt(editingStock[bookId]);
+  const updateStock = async (bookId) => {
+    try {
+      const auth = JSON.parse(localStorage.getItem("auth"));
+      const token = auth?.token;
+      const newStock = parseInt(editingStock[bookId]);
 
-            if (isNaN(newStock) || newStock < 0) {
-                setError('Stock quantity must be a positive number');
-                return;
-            }
+      if (isNaN(newStock) || newStock < 0) {
+        setError("Stock quantity must be a positive number");
+        return;
+      }
 
             await axios.patch(
                 `${API_URL}/books/${bookId}/stock`,
@@ -147,110 +144,45 @@ const InventoryList = () => {
         }
     };
 
-    const deleteBook = async (bookId) => {
-        if (!window.confirm('Are you sure you want to delete this book?')) {
-            return;
-        }
-
-        try {
-            const auth = JSON.parse(localStorage.getItem('auth'));
-            const token = auth?.token;
-            await axios.delete(
-                `${API_URL}/books/${bookId}`,
-                { headers: { Authorization: `Bearer ${token}` }}
-            );
-
-            setSuccessMessage('Book deleted successfully');
-            fetchBooks();
-
-            setTimeout(() => setSuccessMessage(''), 3000);
-        } catch (err) {
-            setError('Failed to delete book. Please try again.');
-            console.error('Error deleting book:', err);
-        }
-    };
-
-    if (loading) {
-        return <div className="inventory-loading">Loading...</div>;
+  const deleteBook = async (bookId) => {
+    if (!window.confirm("Are you sure you want to delete this book?")) {
+      return;
     }
 
-    if (error) {
-        return <div className="inventory-error">{error}</div>;
+    try {
+      const auth = JSON.parse(localStorage.getItem("auth"));
+      const token = auth?.token;
+      await axios.delete(`${API_URL}/books/${bookId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      setSuccessMessage("Book deleted successfully");
+      fetchBooks();
+
+      setTimeout(() => setSuccessMessage(""), 3000);
+    } catch (err) {
+      setError("Failed to delete book. Please try again.");
+      console.error("Error deleting book:", err);
     }
+  };
+
+  if (loading) {
+    return <div className="inventory-loading">Loading...</div>;
+  }
+
+  if (error) {
+    return <div className="inventory-error">{error}</div>;
+  }
 
     return (
         <div className="inventory-container">
             <div className="inventory-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                 <h2>Inventory Management</h2>
-                <button
-                    className="add-book-btn"
-                    onClick={() => setShowAddModal(true)}
-                    style={{
-                        padding: '8px 16px',
-                        backgroundColor: '#4CAF50',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '4px',
-                        cursor: 'pointer',
-                        width: '240px',
-                        position: 'absolute',
-                        right: '160px'
-                    }}
-                >
-                    Add New Book
-                </button>
             </div>
 
-            {showAddModal && (
-                <div className="modal-overlay" style={{
-                    position: 'fixed',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    zIndex: 1000
-                }}>
-                    <div className="modal-content" style={{
-                        backgroundColor: 'white',
-                        padding: '20px',
-                        borderRadius: '8px',
-                        maxWidth: '500px',
-                        width: '90%',
-                        maxHeight: '90vh',
-                        overflowY: 'auto',
-                        position: 'relative'
-                    }}>
-                        <button
-                            className="modal-close"
-                            onClick={() => setShowAddModal(false)}
-                            style={{
-                                position: 'absolute',
-                                right: '10px',
-                                top: '10px',
-                                background: 'none',
-                                border: 'none',
-                                fontSize: '24px',
-                                cursor: 'pointer',
-                                padding: '5px 10px'
-                            }}
-                        >
-                            ×
-                        </button>
-                        <AddBook
-                            onClose={() => setShowAddModal(false)}
-                            onBookAdded={fetchBooks}
-                        />
-                    </div>
-                </div>
-            )}
-
-            {successMessage && (
-                <div className="success-message">{successMessage}</div>
-            )}
+      {successMessage && (
+        <div className="success-message">{successMessage}</div>
+      )}
 
             <table className="inventory-table">
                 <thead>
