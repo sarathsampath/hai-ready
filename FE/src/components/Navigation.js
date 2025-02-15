@@ -22,26 +22,7 @@ const Navigation = () => {
       <div className="nav-brand">Book Store</div>
       <div className="nav-links">
         <Link to="/books" className="nav-link">Books</Link>
-        {isAdmin && (
-          <>
-            {/* <Link to="/inventory" className="nav-link">Inventory Management</Link> */}
-            <button
-              className="nav-link add-book-btn"
-              onClick={() => setShowAddModal(true)}
-              style={{
-                backgroundColor: '#4CAF50',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer',
-                padding: '8px 16px',
-                marginLeft: '10px'
-              }}
-            >
-              Add New Book
-            </button>
-          </>
-        )}
+      
         {isUser && (
           <>
             <Link to="/cart" className="nav-link">Cart</Link>
@@ -49,8 +30,38 @@ const Navigation = () => {
             <Link to="/feedback" className="nav-link">Feedback</Link>
           </>
         )}
-        <Link to="/profile" className="nav-link">Profile</Link>
-        <button onClick={handleLogout} className="logout-btn">Logout</button>
+        {isAdmin && (
+          <>
+           <Link to="/inventory" className="nav-link">Inventory Management</Link> 
+           <button
+              className="nav-link add-book-btn"
+              onClick={() => setShowAddModal(true)}
+              style={{
+                padding: '8px 16px',
+                backgroundColor: '#4CAF50',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                width: '240px',
+            }}
+            >
+              Add New Book
+            </button>
+          </>
+        )}
+           <Link to="/profile" className="nav-link">Profile</Link>
+        <button  style={{
+                padding: '8px 16px',
+                backgroundColor: '#4CAF50',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                width: '200px',
+            }}
+            onClick={handleLogout} className="logout-btn">Logout</button>
+        
       </div>
       <AddBookModal show={showAddModal} onClose={() => setShowAddModal(false)} />
     </nav>
