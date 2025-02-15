@@ -59,7 +59,7 @@ router.put('/books/:id', protect, authorize('Admin'), async (req, res) => {
 });
 
 // Get all books
-router.get('/books', protect, authorize('Admin', 'User'), async (req, res) => {
+router.get('/books', async (req, res) => {
     try {
         const books = await Book.find({});
         res.json(books);
