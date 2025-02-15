@@ -86,13 +86,13 @@ router.get(
 );
 
 // Get all books
-router.get("/books", protect, authorize("Admin", "User"), async (req, res) => {
-  try {
-    const books = await Book.find({});
-    res.json(books);
-  } catch (error) {
-    res.status(500).json({ error: "Failed to fetch books" });
-  }
+router.get('/books', async (req, res) => {
+    try {
+        const books = await Book.find({});
+        res.json(books);
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to fetch books' });
+    }
 });
 
 // Update book stock
