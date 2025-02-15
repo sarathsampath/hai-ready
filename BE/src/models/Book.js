@@ -16,10 +16,6 @@ const bookSchema = new mongoose.Schema({
         required: true,
         min: 0
     },
-    recommended: {
-        type: Boolean,
-        default: false
-    },
     imageUrl: {
         type: String,
         trim: true,

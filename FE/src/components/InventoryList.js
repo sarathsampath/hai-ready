@@ -11,8 +11,6 @@ const InventoryList = () => {
     const [editingImageUrl, setEditingImageUrl] = useState({});
     const [successMessage, setSuccessMessage] = useState('');
     const [disabledInputs, setDisabledInputs] = useState({});
-    const [showDeleteConfirm, setShowDeleteConfirm] = useState(null);
-    const [showAddModal, setShowAddModal] = useState(false);
 
     const fetchBooks = async () => {
         try {
@@ -33,6 +31,18 @@ const InventoryList = () => {
 
     useEffect(() => {
         fetchBooks();
+
+        // Listen for book added event
+        const container = document.querySelector('.inventory-container');
+        if (container) {
+            const handleBookAdded = () => {
+                fetchBooks();
+            };
+            container.addEventListener('bookAdded', handleBookAdded);
+            return () => {
+                container.removeEventListener('bookAdded', handleBookAdded);
+            };
+        }
     }, []);
 
     const handleStockChange = (bookId, value) => {
@@ -113,47 +123,6 @@ const InventoryList = () => {
         }
     };
 
-    const deleteRecommendation = async (bookId) => {
-        try {
-            const auth = JSON.parse(localStorage.getItem('auth'));
-            const token = auth?.token;
-            const response = await axios.delete(
-                `http://localhost:7001/api/inventory/delete-recommendation/${bookId}`,
-                { headers: { Authorization: `Bearer ${token}` }}
-            );
-
-            setSuccessMessage(response.data.message);
-            setShowDeleteConfirm(null);
-            fetchBooks();
-
-            setTimeout(() => setSuccessMessage(''), 3000);
-        } catch (err) {
-            const errorMessage = err.response?.data?.error || 'Failed to delete recommendation. Please try again.';
-            setError(errorMessage);
-            console.error('Error deleting recommendation:', err);
-        }
-    };
-
-    const toggleRecommendation = async (bookId, currentStatus) => {
-        try {
-            const auth = JSON.parse(localStorage.getItem('auth'));
-            const token = auth?.token;
-            await axios.patch(
-                `http://localhost:7001/api/books/${bookId}/recommend`,
-                { recommended: !currentStatus },
-                { headers: { Authorization: `Bearer ${token}` }}
-            );
-
-            setSuccessMessage('Recommendation status updated successfully');
-            fetchBooks();
-
-            setTimeout(() => setSuccessMessage(''), 3000);
-        } catch (err) {
-            setError('Failed to update recommendation status. Please try again.');
-            console.error('Error updating recommendation:', err);
-        }
-    };
-
     const deleteBook = async (bookId) => {
         if (!window.confirm('Are you sure you want to delete this book?')) {
             return;
@@ -187,70 +156,7 @@ const InventoryList = () => {
 
     return (
         <div className="inventory-container">
-            <div className="inventory-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                <h2>Inventory Management</h2>
-                <button
-                    className="add-book-btn"
-                    onClick={() => setShowAddModal(true)}
-                    style={{
-                        padding: '8px 16px',
-                        backgroundColor: '#4CAF50',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '4px',
-                        cursor: 'pointer'
-                    }}
-                >
-                    Add New Book
-                </button>
-            </div>
-
-            {showAddModal && (
-                <div className="modal-overlay" style={{
-                    position: 'fixed',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    zIndex: 1000
-                }}>
-                    <div className="modal-content" style={{
-                        backgroundColor: 'white',
-                        padding: '20px',
-                        borderRadius: '8px',
-                        maxWidth: '500px',
-                        width: '90%',
-                        maxHeight: '90vh',
-                        overflowY: 'auto',
-                        position: 'relative'
-                    }}>
-                        <button
-                            className="modal-close"
-                            onClick={() => setShowAddModal(false)}
-                            style={{
-                                position: 'absolute',
-                                right: '10px',
-                                top: '10px',
-                                background: 'none',
-                                border: 'none',
-                                fontSize: '24px',
-                                cursor: 'pointer',
-                                padding: '5px 10px'
-                            }}
-                        >
-                            ×
-                        </button>
-                        <AddBook
-                            onClose={() => setShowAddModal(false)}
-                            onBookAdded={fetchBooks}
-                        />
-                    </div>
-                </div>
-            )}
+            <h2 className="inventory-header" style={{ marginBottom: '20px' }}>Inventory Management</h2>
 
             {successMessage && (
                 <div className="success-message">{successMessage}</div>
@@ -263,7 +169,6 @@ const InventoryList = () => {
                         <th>Title</th>
                         <th>Author</th>
                         <th>Stock</th>
-                        <th>Recommended</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -323,38 +228,6 @@ const InventoryList = () => {
                                         </button>
                                     </div>
                                 </div>
-                            </td>
-                            <td>
-                                {book.recommended ? (
-                                    <>
-                                        <button
-                                            className="delete-recommendation-btn"
-                                            onClick={() => setShowDeleteConfirm(book._id)}
-                                        >
-                                            Delete Recommendation
-                                        </button>
-                                        {showDeleteConfirm === book._id && (
-                                            <div className="confirmation-dialog">
-                                                <p>Are you sure you want to delete this recommendation?</p>
-                                                <div className="confirmation-buttons">
-                                                    <button onClick={() => deleteRecommendation(book._id)}>
-                                                        Confirm
-                                                    </button>
-                                                    <button onClick={() => setShowDeleteConfirm(null)}>
-                                                        Cancel
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        )}
-                                    </>
-                                ) : (
-                                    <button
-                                        className="recommend-btn"
-                                        onClick={() => toggleRecommendation(book._id, book.recommended)}
-                                    >
-                                        Add Recommendation
-                                    </button>
-                                )}
                             </td>
                             <td>
                                 <button

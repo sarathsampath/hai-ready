@@ -6,7 +6,6 @@ const AddBook = ({ onClose, onBookAdded }) => {
         title: '',
         author: '',
         stockQuantity: '',
-        recommended: false,
         imageUrl: ''
     });
 
@@ -177,18 +176,6 @@ const AddBook = ({ onClose, onBookAdded }) => {
                         value={formData.imageUrl}
                         onChange={handleInputChange}
                     />
-                </div>
-
-                <div className="form-group checkbox">
-                    <label>
-                        <input
-                            type="checkbox"
-                            name="recommended"
-                            checked={formData.recommended}
-                            onChange={handleInputChange}
-                        />
-                        Recommended
-                    </label>
                 </div>
 
                 <button
