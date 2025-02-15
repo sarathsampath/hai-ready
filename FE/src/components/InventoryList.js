@@ -198,12 +198,11 @@ const InventoryList = () => {
                 <tbody>
                     {books.map(book => (
                         <tr key={book._id}>
-                            <td>
+<td style={{ width: '150px', height: '150px', textAlign: 'center', verticalAlign: 'middle' }}>
                                 {book.imageUrl ? (
                                     <img
                                         src={book.imageUrl}
                                         alt={book.title}
-                                        className="book-image"
                                         style={{ maxWidth: '150px', maxHeight: '150px', objectFit: 'contain' }}
                                         onError={(e) => {
                                             e.target.onerror = null;
@@ -213,9 +212,10 @@ const InventoryList = () => {
                                         }}
                                     />
                                 ) : (
-                                    <div className="book-image placeholder" style={{ width: '100px', height: '150px' }}>No Image</div>
+                                    <div style={{ width: '100px', height: '150px', margin: '0 auto' }}>No Image</div>
                                 )}
                             </td>
+                            
                             <td>{book.title}</td>
                             <td>{book.author}</td>
                             <td>

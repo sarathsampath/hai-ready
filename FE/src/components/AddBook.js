@@ -128,7 +128,6 @@ const AddBook = ({ onClose, onBookAdded }) => {
             <Notification message={notification.message} type={notification.type} />
             <div className="add-book-header">
                 <h2>Add New Book</h2>
-                <button className="close-button" onClick={onClose}>&times;</button>
             </div>
             <form onSubmit={handleSubmit} className="add-book-form">
                 <div className="form-group">
