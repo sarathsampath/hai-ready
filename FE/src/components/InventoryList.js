@@ -180,20 +180,6 @@ const InventoryList = () => {
         <div className="inventory-container">
             <div className="inventory-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                 <h2>Inventory Management</h2>
-                <button
-                    className="add-book-btn"
-                    onClick={() => setShowAddModal(true)}
-                    style={{
-                        padding: '8px 16px',
-                        backgroundColor: '#4CAF50',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '4px',
-                        cursor: 'pointer'
-                    }}
-                >
-                    Add New Book
-                </button>
             </div>
 
             {showAddModal && (
