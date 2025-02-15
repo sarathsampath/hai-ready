@@ -1,88 +1,155 @@
 .book-grid-container {
-    padding: 2rem;
-    background-color: #1a1d21;
-    min-height: 100vh;
+    padding: 20px;
 }
 
 .book-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 2rem;
-    padding: 1rem;
+    gap: 20px;
 }
 
 .book-card {
-    background-color: #2d3035;
+    border: 1px solid #ddd;
     border-radius: 8px;
     overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    transition: transform 0.2s;
-    position: relative;
-}
-
-.book-card:hover {
-    transform: translateY(-5px);
+    background: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .book-image {
     width: 100%;
-    height: 300px;
+    height: 200px;
     object-fit: cover;
-    border-bottom: 1px solid #3a3f48;
 }
 
 .book-image.placeholder {
-    background-color: #3a3f48;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #8b949e;
+    background-color: #f5f5f5;
+    color: #666;
 }
 
 .book-info {
-    padding: 1.5rem;
+    padding: 15px;
 }
 
 .book-title {
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: #ffffff;
-    margin: 0 0 0.5rem 0;
+    margin: 0 0 10px;
+    font-size: 1.2em;
+    color: #333;
 }
 
 .book-author {
-    font-size: 1rem;
-    color: #8b949e;
-    margin: 0 0 1rem 0;
+    color: #666;
+    margin-bottom: 10px;
 }
 
 .book-description {
-    color: #8b949e;
-    font-size: 0.9rem;
-    margin: 0 0 1rem 0;
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    font-size: 0.9em;
+    color: #555;
+    margin-bottom: 15px;
 }
 
 .out-of-stock {
-    color: #f85149;
-    font-size: 0.9rem;
-    font-weight: 500;
+    color: #dc3545;
+    font-weight: bold;
+    margin-bottom: 10px;
 }
 
 .add-note {
-    color: #58a6ff;
-    text-decoration: none;
-    font-size: 0.9rem;
-    display: inline-block;
-    margin-top: 1rem;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
     cursor: pointer;
+    transition: background-color 0.2s;
 }
 
 .add-note:hover {
-    text-decoration: underline;
+    background-color: #0056b3;
+}
+
+/* Modal Styles */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.modal-content h3 {
+    margin: 0 0 20px;
+    color: #333;
+}
+
+.modal-content textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    font-size: 14px;
+    resize: vertical;
+}
+
+.char-counter {
+    font-size: 0.9em;
+    color: #666;
+    margin-bottom: 15px;
+}
+
+.error-text {
+    color: #dc3545;
+    font-size: 0.9em;
+    margin-bottom: 15px;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.modal-actions button {
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    border: none;
+    font-size: 14px;
+}
+
+.modal-actions button[type="button"] {
+    background-color: #6c757d;
+    color: white;
+}
+
+.modal-actions button[type="submit"] {
+    background-color: #28a745;
+    color: white;
+}
+
+.modal-actions button:hover {
+    opacity: 0.9;
+}
+
+.modal-actions button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
 }
