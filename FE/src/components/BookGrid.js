@@ -4,6 +4,13 @@ import { useNavigate } from "react-router-dom";
 import { API_URL } from "../config";
 import "./BookGrid.css";
 
+const truncateDescription = (text, wordLimit = 20) => {
+  if (!text) return "";
+  const words = text.trim().split(/\s+/);
+  if (words.length <= wordLimit) return text;
+  return words.slice(0, wordLimit).join(" ") + "...";
+};
+
 export const FeedbackModal = ({ isOpen, onClose, bookId, onSubmit }) => {
   const [feedback, setFeedback] = useState("");
   const [error, setError] = useState("");
@@ -126,40 +133,48 @@ const BookGrid = () => {
             key={book._id}
             className="book-card"
             onClick={() => navigate(`/book/${book._id}`)}
-            style={{ cursor: "pointer" }}
           >
-            {book.imageUrl ? (
-              <img
-                src={book.imageUrl}
-                alt={book.title}
-                className="book-image"
-                onError={(e) => {
-                  e.target.onerror = null;
-                  e.target.src = "";
-                  e.target.className = "book-image placeholder";
-                }}
-              />
-            ) : (
-              <div className="book-image placeholder">No Image</div>
-            )}
-            <div className="book-info">
-              <h3 className="book-title">{book.title}</h3>
-              <p className="book-author">{book.author}</p>
-              <p className="book-description">
-                {book.description || "No description available"}
-              </p>
-              {book.stockQuantity === 0 && (
-                <p className="out-of-stock">Out of Stock</p>
-              )}
-              <button
-                className="add-note"
-                onClick={() => {
-                  setSelectedBookId(book._id);
-                  setModalOpen(true);
-                }}
-              >
-                + Add Recommendation
-              </button>
+            <div className="book-card-inner">
+              <div className="book-image-container">
+                {book.imageUrl ? (
+                  <img
+                    src={book.imageUrl}
+                    alt={book.title}
+                    className="book-image"
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = "";
+                      e.target.className = "book-image placeholder";
+                    }}
+                  />
+                ) : (
+                  <div className="book-image placeholder">No Image</div>
+                )}
+                {book.stockQuantity === 0 && (
+                  <div className="stock-badge out-of-stock">Out of Stock</div>
+                )}
+                {book.stockQuantity > 0 && (
+                  <div className="stock-badge in-stock">In Stock</div>
+                )}
+              </div>
+              <div className="book-info">
+                <h3 className="book-title">{book.title}</h3>
+                <p className="book-author">by {book.author}</p>
+                <p className="book-description">
+                  {truncateDescription(book.description) ||
+                    "No description available"}
+                </p>
+                <button
+                  className="add-recommendation-btn"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedBookId(book._id);
+                    setModalOpen(true);
+                  }}
+                >
+                  + Add Recommendation
+                </button>
+              </div>
             </div>
           </div>
         ))}

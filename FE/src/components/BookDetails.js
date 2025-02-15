@@ -109,13 +109,17 @@ const BookDetails = () => {
 
       <div className="feedback-section">
         <div className="feedback-header">
-          <h2 className="feedback-title">Reader Recommendations</h2>
-          <button
-            className="add-feedback-btn"
-            onClick={() => setModalOpen(true)}
-          >
-            + Add Recommendation
-          </button>
+          <div className="feedback-title-container">
+            <h2 className="feedback-title">Reader's Recommendations</h2>
+            <button
+              className="add-feedback-btn-small"
+              onClick={() => setModalOpen(true)}
+              title="Add Recommendation"
+            >
+              +
+            </button>
+          </div>
+          <div className="feedback-divider"></div>
         </div>
 
         <div className="feedback-list">
