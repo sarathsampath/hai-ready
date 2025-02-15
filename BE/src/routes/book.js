@@ -67,6 +67,24 @@ router.put("/books/:id", protect, authorize("Admin"), async (req, res) => {
   }
 });
 
+// Get a single book by ID
+router.get(
+  "/books/:id",
+  protect,
+  authorize("Admin", "User"),
+  async (req, res) => {
+    try {
+      const book = await Book.findById(req.params.id);
+      if (!book) {
+        return res.status(404).json({ error: "Book not found" });
+      }
+      res.json(book);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch book" });
+    }
+  }
+);
+
 // Get all books
 router.get("/books", protect, authorize("Admin", "User"), async (req, res) => {
   try {

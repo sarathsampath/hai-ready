@@ -1,0 +1,151 @@
+.book-details-container {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+.book-details-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  background: #fff;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.book-image-section {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.book-details-image {
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.book-image-placeholder {
+  width: 100%;
+  aspect-ratio: 3/4;
+  background: #f5f5f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+  font-size: 1.2rem;
+  border-radius: 4px;
+}
+
+.book-info-section {
+  padding: 1rem 0;
+}
+
+.book-title {
+  font-size: 2rem;
+  color: #212121;
+  margin: 0 0 1rem;
+}
+
+.book-author {
+  font-size: 1.2rem;
+  color: #666;
+  margin-bottom: 1.5rem;
+}
+
+.book-description {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #424242;
+  margin-bottom: 2rem;
+}
+
+.stock-status {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  font-weight: 500;
+  margin-bottom: 1.5rem;
+}
+
+.in-stock {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+.out-of-stock {
+  background-color: #ffebee;
+  color: #c62828;
+}
+
+.feedback-section {
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 1px solid #eee;
+}
+
+.feedback-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.feedback-title {
+  font-size: 1.5rem;
+  color: #212121;
+  margin: 0;
+}
+
+.add-feedback-btn {
+  padding: 0.75rem 1.5rem;
+  background-color: #2196f3;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.add-feedback-btn:hover {
+  background-color: #1976d2;
+}
+
+.feedback-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.feedback-item {
+  background: #f8f9fa;
+  padding: 1rem;
+  border-radius: 4px;
+  border-left: 4px solid #2196f3;
+}
+
+.feedback-content {
+  color: #424242;
+  margin-bottom: 0.5rem;
+}
+
+.feedback-date {
+  color: #757575;
+  font-size: 0.875rem;
+}
+
+@media (max-width: 768px) {
+  .book-details-content {
+    grid-template-columns: 1fr;
+  }
+
+  .book-image-section {
+    margin-bottom: 2rem;
+  }
+
+  .book-details-image {
+    max-width: 300px;
+  }
+}

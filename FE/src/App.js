@@ -1,11 +1,17 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import Login from './components/Login';
-import Signup from './components/Signup';
-import Navigation from './components/Navigation';
-import ProtectedRoute from './components/ProtectedRoute';
-import InventoryList from './components/InventoryList';
-import BookGrid from './components/BookGrid';
+import React from "react";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
+import Login from "./components/Login";
+import Signup from "./components/Signup";
+import Navigation from "./components/Navigation";
+import ProtectedRoute from "./components/ProtectedRoute";
+import InventoryList from "./components/InventoryList";
+import BookGrid from "./components/BookGrid";
+import BookDetails from "./components/BookDetails";
 
 // Placeholder components for protected routes
 const Cart = () => <div>Shopping Cart (User Only)</div>;
@@ -36,7 +42,7 @@ function App() {
               element={
                 <ProtectedRoute
                   element={<InventoryList />}
-                  allowedRoles={['Admin']}
+                  allowedRoles={["Admin"]}
                 />
               }
             />
@@ -45,10 +51,7 @@ function App() {
             <Route
               path="/cart"
               element={
-                <ProtectedRoute
-                  element={<Cart />}
-                  allowedRoles={['User']}
-                />
+                <ProtectedRoute element={<Cart />} allowedRoles={["User"]} />
               }
             />
             <Route
@@ -56,7 +59,7 @@ function App() {
               element={
                 <ProtectedRoute
                   element={<Recommendations />}
-                  allowedRoles={['User']}
+                  allowedRoles={["User"]}
                 />
               }
             />
@@ -65,7 +68,7 @@ function App() {
               element={
                 <ProtectedRoute
                   element={<Feedback />}
-                  allowedRoles={['User']}
+                  allowedRoles={["User"]}
                 />
               }
             />
@@ -76,7 +79,7 @@ function App() {
               element={
                 <ProtectedRoute
                   element={<Profile />}
-                  allowedRoles={['Admin', 'User']}
+                  allowedRoles={["Admin", "User"]}
                 />
               }
             />
@@ -87,7 +90,16 @@ function App() {
               element={
                 <ProtectedRoute
                   element={<BookGrid />}
-                  allowedRoles={['User', 'Admin']}
+                  allowedRoles={["User", "Admin"]}
+                />
+              }
+            />
+            <Route
+              path="/book/:id"
+              element={
+                <ProtectedRoute
+                  element={<BookDetails />}
+                  allowedRoles={["User", "Admin"]}
                 />
               }
             />
@@ -96,7 +108,7 @@ function App() {
             <Route
               path="/"
               element={
-                localStorage.getItem('auth') ? (
+                localStorage.getItem("auth") ? (
                   <Navigate to="/books" replace />
                 ) : (
                   <Navigate to="/login" replace />
