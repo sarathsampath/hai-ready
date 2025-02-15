@@ -71,6 +71,40 @@
     border-radius: 4px;
 }
 
+.description-control {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 300px;
+}
+
+.description-control span {
+    font-size: 14px;
+    color: #333;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.description-update {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.description-update textarea {
+    width: 100%;
+    min-height: 80px;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    resize: vertical;
+    font-family: inherit;
+    font-size: 14px;
+}
+
 button {
     padding: 6px 12px;
     border: none;
@@ -78,24 +112,17 @@ button {
     cursor: pointer;
     font-size: 14px;
     transition: background-color 0.2s;
+    background-color: #007bff;
+    color: white;
+}
+
+button:hover {
+    opacity: 0.9;
 }
 
 button:disabled {
     background-color: #ddd;
     cursor: not-allowed;
-}
-
-.recommend-btn {
-    background-color: #4CAF50;
-    color: white;
-}
-
-.recommend-btn.recommended {
-    background-color: #f44336;
-}
-
-.recommend-btn:hover {
-    opacity: 0.9;
 }
 
 .delete-btn {
@@ -104,50 +131,6 @@ button:disabled {
 }
 
 .delete-btn:hover {
-    opacity: 0.9;
-}
-
-.delete-recommendation-btn {
-    background-color: #ff9800;
-    color: white;
-}
-
-.delete-recommendation-btn:hover {
-    opacity: 0.9;
-}
-
-.confirmation-dialog {
-    position: absolute;
-    background-color: white;
-    padding: 15px;
-    border-radius: 4px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-    z-index: 1000;
-    margin-top: 5px;
-}
-
-.confirmation-dialog p {
-    margin: 0 0 10px 0;
-    color: #333;
-}
-
-.confirmation-buttons {
-    display: flex;
-    gap: 10px;
-    justify-content: flex-end;
-}
-
-.confirmation-buttons button:first-child {
-    background-color: #f44336;
-    color: white;
-}
-
-.confirmation-buttons button:last-child {
-    background-color: #9e9e9e;
-    color: white;
-}
-
-.confirmation-buttons button:hover {
     opacity: 0.9;
 }
 

@@ -12,7 +12,12 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 7001;
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
-const mongoURL = process.env.MONGODB_URI || 'mongodb+srv://quoraquora56:5vi14tuQwSHq3K0G@cluster1.f1lx2.mongodb.net/?retryWrites=true&w=majority&appName=Cluster1';
+const mongoURL = process.env.MONGODB_URI;
+
+if (!mongoURL) {
+  console.error('MONGODB_URI environment variable is not set');
+  process.exit(1);
+}
 
 // Connect to MongoDB
 mongoose.connect(mongoURL)
@@ -144,16 +149,9 @@ app.use((err, req, res, next) => {
   res.status(500).json({ message: 'Something went wrong!' });
 });
 
-const server = app.listen(PORT, () => {
+app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 }).on('error', (err) => {
-  if (err.code === 'EADDRINUSE') {
-    console.error(`Port ${PORT} is already in use. Trying port ${PORT + 1}`);
-    server.close();
-    app.listen(PORT + 1, () => {
-      console.log(`Server running on port ${PORT + 1}`);
-    });
-  } else {
-    console.error('Server error:', err);
-  }
+  console.error('Server error:', err);
+  process.exit(1);
 });

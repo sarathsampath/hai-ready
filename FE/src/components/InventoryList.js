@@ -1,402 +1,352 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
-import "./InventoryList.css";
-import AddBook from "./AddBook";
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { API_URL } from '../config';
+import './InventoryList.css';
+import AddBook from './AddBook';
 
 const InventoryList = () => {
-  const [books, setBooks] = useState([]);
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [editingStock, setEditingStock] = useState({});
-  const [editingImageUrl, setEditingImageUrl] = useState({});
-  const [successMessage, setSuccessMessage] = useState("");
-  const [disabledInputs, setDisabledInputs] = useState({});
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(null);
-  const [showAddModal, setShowAddModal] = useState(false);
+    const [books, setBooks] = useState([]);
+    const [error, setError] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [editingStock, setEditingStock] = useState({});
+    const [editingImageUrl, setEditingImageUrl] = useState({});
+    const [editingDescription, setEditingDescription] = useState({});
+    const [successMessage, setSuccessMessage] = useState('');
+    const [disabledInputs, setDisabledInputs] = useState({});
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(null);
+    const [showAddModal, setShowAddModal] = useState(false);
 
-  const fetchBooks = async () => {
-    try {
-      const auth = JSON.parse(localStorage.getItem("auth"));
-      const token = auth?.token;
-      const response = await axios.get("http://localhost:7001/api/books", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setBooks(response.data);
-      setError(null);
-    } catch (err) {
-      setError("Failed to fetch books. Please try again later.");
-      console.error("Error fetching books:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
+    const fetchBooks = async () => {
+        try {
+            const auth = JSON.parse(localStorage.getItem('auth'));
+            const token = auth?.token;
+            const response = await axios.get(`${API_URL}/books`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            setBooks(response.data);
+            setError(null);
+        } catch (err) {
+            setError('Failed to fetch books. Please try again later.');
+            console.error('Error fetching books:', err);
+        } finally {
+            setLoading(false);
+        }
+    };
 
-  useEffect(() => {
-    fetchBooks();
-  }, []);
+    useEffect(() => {
+        fetchBooks();
+    }, []);
 
-  const [outOfStockBooks, setOutOfStockBooks] = useState({});
+    const handleStockChange = (bookId, value) => {
+        setEditingStock(prev => ({
+            ...prev,
+            [bookId]: value
+        }));
+    };
 
-  const handleStockChange = (bookId, value) => {
-    // Clear out of stock when stock change is entered
-    if (value !== "") {
-      setOutOfStockBooks((prev) => ({
-        ...prev,
-        [bookId]: false,
-      }));
-    }
-    setEditingStock((prev) => ({
-      ...prev,
-      [bookId]: value,
-    }));
-  };
+    const handleImageUrlChange = (bookId, value) => {
+        setEditingImageUrl(prev => ({
+            ...prev,
+            [bookId]: value
+        }));
+    };
 
-  const handleOutOfStockChange = (bookId, checked) => {
-    setOutOfStockBooks((prev) => ({
-      ...prev,
-      [bookId]: checked,
-    }));
-    // Clear stock input when marked as out of stock
-    if (checked) {
-      setEditingStock((prev) => ({
-        ...prev,
-        [bookId]: "",
-      }));
-    }
-  };
+    const handleDescriptionChange = (bookId, value) => {
+        setEditingDescription(prev => ({
+            ...prev,
+            [bookId]: value
+        }));
+    };
 
-  const handleImageUrlChange = (bookId, value) => {
-    setEditingImageUrl((prev) => ({
-      ...prev,
-      [bookId]: value,
-    }));
-  };
+    const updateImageUrl = async (bookId) => {
+        try {
+            const auth = JSON.parse(localStorage.getItem('auth'));
+            const token = auth?.token;
+            const newImageUrl = editingImageUrl[bookId];
 
-  const updateImageUrl = async (bookId) => {
-    try {
-      const auth = JSON.parse(localStorage.getItem("auth"));
-      const token = auth?.token;
-      const newImageUrl = editingImageUrl[bookId];
+            await axios.put(
+                `${API_URL}/books/${bookId}`,
+                { imageUrl: newImageUrl },
+                { headers: { Authorization: `Bearer ${token}` }}
+            );
 
-      await axios.put(
-        `http://localhost:7001/api/books/${bookId}`,
-        { imageUrl: newImageUrl },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+            setSuccessMessage('Image URL updated successfully');
+            setEditingImageUrl(prev => ({ ...prev, [bookId]: '' }));
+            fetchBooks();
 
-      setSuccessMessage("Image URL updated successfully");
-      setEditingImageUrl((prev) => ({ ...prev, [bookId]: "" }));
-      fetchBooks();
+            setTimeout(() => setSuccessMessage(''), 3000);
+        } catch (err) {
+            setError('Failed to update image URL. Please try again.');
+            console.error('Error updating image URL:', err);
+        }
+    };
 
-      setTimeout(() => setSuccessMessage(""), 3000);
-    } catch (err) {
-      setError("Failed to update image URL. Please try again.");
-      console.error("Error updating image URL:", err);
-    }
-  };
+    const updateStock = async (bookId) => {
+        try {
+            const auth = JSON.parse(localStorage.getItem('auth'));
+            const token = auth?.token;
+            const newStock = parseInt(editingStock[bookId]);
 
-  const updateStock = async (bookId) => {
-    try {
-      const auth = JSON.parse(localStorage.getItem("auth"));
-      const token = auth?.token;
+            if (isNaN(newStock) || newStock < 0) {
+                setError('Stock quantity must be a positive number');
+                return;
+            }
 
-      // Handle out of stock case
-      if (outOfStockBooks[bookId]) {
-        await axios.patch(
-          `http://localhost:7001/api/books/${bookId}/stock`,
-          { outOfStock: true },
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-      } else {
-        // Handle stock increment/decrement
-        const stockChange = parseInt(editingStock[bookId]);
-        if (isNaN(stockChange)) {
-          setError("Please enter a valid number");
-          return;
+            await axios.patch(
+                `${API_URL}/books/${bookId}/stock`,
+                { stockQuantity: newStock },
+                { headers: { Authorization: `Bearer ${token}` }}
+            );
+
+            // Disable the input and button for this book
+            setDisabledInputs(prev => ({
+                ...prev,
+                [bookId]: true
+            }));
+
+            setSuccessMessage('Stock updated successfully');
+            setEditingStock(prev => ({ ...prev, [bookId]: newStock.toString() }));
+            fetchBooks();
+
+            // Re-enable the input after 5 seconds
+            setTimeout(() => {
+                setDisabledInputs(prev => ({
+                    ...prev,
+                    [bookId]: false
+                }));
+                setSuccessMessage('');
+            }, 5000);
+        } catch (err) {
+            setError('Failed to update stock. Please try again.');
+            console.error('Error updating stock:', err);
+        }
+    };
+
+    const updateDescription = async (bookId) => {
+        try {
+            const auth = JSON.parse(localStorage.getItem('auth'));
+            const token = auth?.token;
+            const newDescription = editingDescription[bookId];
+
+            await axios.put(
+                `${API_URL}/books/${bookId}`,
+                { description: newDescription },
+                { headers: { Authorization: `Bearer ${token}` }}
+            );
+
+            setSuccessMessage('Description updated successfully');
+            setEditingDescription(prev => ({ ...prev, [bookId]: '' }));
+            fetchBooks();
+
+            setTimeout(() => setSuccessMessage(''), 3000);
+        } catch (err) {
+            setError('Failed to update description. Please try again.');
+            console.error('Error updating description:', err);
+        }
+    };
+
+    const deleteBook = async (bookId) => {
+        if (!window.confirm('Are you sure you want to delete this book?')) {
+            return;
         }
 
-        await axios.patch(
-          `http://localhost:7001/api/books/${bookId}/stock`,
-          { stockChange },
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-      }
+        try {
+            const auth = JSON.parse(localStorage.getItem('auth'));
+            const token = auth?.token;
+            await axios.delete(
+                `${API_URL}/books/${bookId}`,
+                { headers: { Authorization: `Bearer ${token}` }}
+            );
 
-      setDisabledInputs((prev) => ({
-        ...prev,
-        [bookId]: true,
-      }));
+            setSuccessMessage('Book deleted successfully');
+            fetchBooks();
 
-      setSuccessMessage("Stock updated successfully");
-      setEditingStock((prev) => ({ ...prev, [bookId]: "" }));
-      setOutOfStockBooks((prev) => ({ ...prev, [bookId]: false }));
-      fetchBooks();
+            setTimeout(() => setSuccessMessage(''), 3000);
+        } catch (err) {
+            setError('Failed to delete book. Please try again.');
+            console.error('Error deleting book:', err);
+        }
+    };
 
-      setTimeout(() => {
-        setDisabledInputs((prev) => ({
-          ...prev,
-          [bookId]: false,
-        }));
-        setSuccessMessage("");
-      }, 5000);
-    } catch (err) {
-      setError("Failed to update stock. Please try again.");
-      console.error("Error updating stock:", err);
-    }
-  };
-
-  const deleteRecommendation = async (bookId) => {
-    try {
-      const auth = JSON.parse(localStorage.getItem("auth"));
-      const token = auth?.token;
-      const response = await axios.delete(
-        `http://localhost:7001/api/inventory/delete-recommendation/${bookId}`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-
-      setSuccessMessage(response.data.message);
-      setShowDeleteConfirm(null);
-      fetchBooks();
-
-      setTimeout(() => setSuccessMessage(""), 3000);
-    } catch (err) {
-      const errorMessage =
-        err.response?.data?.error ||
-        "Failed to delete recommendation. Please try again.";
-      setError(errorMessage);
-      console.error("Error deleting recommendation:", err);
-    }
-  };
-
-  const toggleRecommendation = async (bookId, currentStatus) => {
-    try {
-      const auth = JSON.parse(localStorage.getItem("auth"));
-      const token = auth?.token;
-      await axios.patch(
-        `http://localhost:7001/api/books/${bookId}/recommend`,
-        { recommended: !currentStatus },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-
-      setSuccessMessage("Recommendation status updated successfully");
-      fetchBooks();
-
-      setTimeout(() => setSuccessMessage(""), 3000);
-    } catch (err) {
-      setError("Failed to update recommendation status. Please try again.");
-      console.error("Error updating recommendation:", err);
-    }
-  };
-
-  const deleteBook = async (bookId) => {
-    if (!window.confirm("Are you sure you want to delete this book?")) {
-      return;
+    if (loading) {
+        return <div className="inventory-loading">Loading...</div>;
     }
 
-    try {
-      const auth = JSON.parse(localStorage.getItem("auth"));
-      const token = auth?.token;
-      await axios.delete(`http://localhost:7001/api/books/${bookId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      setSuccessMessage("Book deleted successfully");
-      fetchBooks();
-
-      setTimeout(() => setSuccessMessage(""), 3000);
-    } catch (err) {
-      setError("Failed to delete book. Please try again.");
-      console.error("Error deleting book:", err);
+    if (error) {
+        return <div className="inventory-error">{error}</div>;
     }
-  };
 
-  if (loading) {
-    return <div className="inventory-loading">Loading...</div>;
-  }
-
-  if (error) {
-    return <div className="inventory-error">{error}</div>;
-  }
-
-  return (
-    <div className="inventory-container">
-      <div
-        className="inventory-header"
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: "20px",
-        }}
-      >
-        <h2>Inventory Management</h2>
-      </div>
-
-      {showAddModal && (
-        <div
-          className="modal-overlay"
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: "rgba(0, 0, 0, 0.5)",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            zIndex: 1000,
-          }}
-        >
-          <div
-            className="modal-content"
-            style={{
-              backgroundColor: "white",
-              padding: "20px",
-              borderRadius: "8px",
-              maxWidth: "500px",
-              width: "90%",
-              maxHeight: "90vh",
-              overflowY: "auto",
-              position: "relative",
-            }}
-          >
-            <button
-              className="modal-close"
-              onClick={() => setShowAddModal(false)}
-              style={{
-                position: "absolute",
-                right: "10px",
-                top: "10px",
-                background: "none",
-                border: "none",
-                fontSize: "24px",
-                cursor: "pointer",
-                padding: "5px 10px",
-              }}
-            >
-              ×
-            </button>
-            <AddBook
-              onClose={() => setShowAddModal(false)}
-              onBookAdded={fetchBooks}
-            />
-          </div>
-        </div>
-      )}
-
-      {successMessage && (
-        <div className="success-message">{successMessage}</div>
-      )}
-
-      <table className="inventory-table">
-        <thead>
-          <tr>
-            <th>Image</th>
-            <th>Title</th>
-            <th>Author</th>
-            <th>Stock</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {books.map((book) => (
-            <tr key={book._id}>
-              <td>
-                {book.imageUrl ? (
-                  <img
-                    src={book.imageUrl}
-                    alt={book.title}
-                    className="book-image"
-                    onError={(e) => {
-                      e.target.onerror = null;
-                      e.target.src = "";
-                      e.target.className = "book-image placeholder";
-                      e.target.innerHTML = "No Image";
-                    }}
-                  />
-                ) : (
-                  <div className="book-image placeholder">No Image</div>
-                )}
-                <div className="image-url-control">
-                  <input
-                    type="text"
-                    value={editingImageUrl[book._id] || ""}
-                    onChange={(e) =>
-                      handleImageUrlChange(book._id, e.target.value)
-                    }
-                    placeholder="Enter image URL"
-                  />
-                  <button
-                    onClick={() => updateImageUrl(book._id)}
-                    disabled={!editingImageUrl[book._id]}
-                  >
-                    Update
-                  </button>
-                </div>
-              </td>
-              <td>{book.title}</td>
-              <td>{book.author}</td>
-              <td>
-                <div className="stock-control">
-                  <span>{book.stockQuantity}</span>
-                  <div className="stock-update">
-                    <div className="stock-controls">
-                      <input
-                        type="number"
-                        min="0"
-                        value={editingStock[book._id] || ""}
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          // Only allow positive numbers or empty string
-                          if (value === "" || parseInt(value) >= 0) {
-                            handleStockChange(book._id, value);
-                          }
-                        }}
-                        placeholder="Update stock"
-                        disabled={
-                          disabledInputs[book._id] || outOfStockBooks[book._id]
-                        }
-                      />
-                      <label className="out-of-stock-label">
-                        <input
-                          type="checkbox"
-                          checked={outOfStockBooks[book._id] || false}
-                          onChange={(e) =>
-                            handleOutOfStockChange(book._id, e.target.checked)
-                          }
-                          disabled={disabledInputs[book._id]}
-                        />
-                        Out of Stock
-                      </label>
-                    </div>
-                    <button
-                      onClick={() => updateStock(book._id)}
-                      disabled={
-                        (!editingStock[book._id] &&
-                          !outOfStockBooks[book._id]) ||
-                        disabledInputs[book._id]
-                      }
-                    >
-                      Update
-                    </button>
-                  </div>
-                </div>
-              </td>
-              <td>
+    return (
+        <div className="inventory-container">
+            <div className="inventory-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                <h2>Inventory Management</h2>
                 <button
-                  className="delete-btn"
-                  onClick={() => deleteBook(book._id)}
+                    className="add-book-btn"
+                    onClick={() => setShowAddModal(true)}
+                    style={{
+                        padding: '8px 16px',
+                        backgroundColor: '#4CAF50',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '4px',
+                        cursor: 'pointer'
+                    }}
                 >
-                  Delete
+                    Add New Book
                 </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
+            </div>
+
+            {showAddModal && (
+                <div className="modal-overlay" style={{
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    zIndex: 1000
+                }}>
+                    <div className="modal-content" style={{
+                        backgroundColor: 'white',
+                        padding: '20px',
+                        borderRadius: '8px',
+                        maxWidth: '500px',
+                        width: '90%',
+                        maxHeight: '90vh',
+                        overflowY: 'auto',
+                        position: 'relative'
+                    }}>
+                        <button
+                            className="modal-close"
+                            onClick={() => setShowAddModal(false)}
+                            style={{
+                                position: 'absolute',
+                                right: '10px',
+                                top: '10px',
+                                background: 'none',
+                                border: 'none',
+                                fontSize: '24px',
+                                cursor: 'pointer',
+                                padding: '5px 10px'
+                            }}
+                        >
+                            ×
+                        </button>
+                        <AddBook
+                            onClose={() => setShowAddModal(false)}
+                            onBookAdded={fetchBooks}
+                        />
+                    </div>
+                </div>
+            )}
+
+            {successMessage && (
+                <div className="success-message">{successMessage}</div>
+            )}
+
+            <table className="inventory-table">
+                <thead>
+                    <tr>
+                        <th>Image</th>
+                        <th>Title</th>
+                        <th>Author</th>
+                        <th>Stock</th>
+                        <th>Description</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {books.map(book => (
+                        <tr key={book._id}>
+                            <td>
+                                {book.imageUrl ? (
+                                    <img
+                                        src={book.imageUrl}
+                                        alt={book.title}
+                                        className="book-image"
+                                        onError={(e) => {
+                                            e.target.onerror = null;
+                                            e.target.src = '';
+                                            e.target.className = 'book-image placeholder';
+                                            e.target.innerHTML = 'No Image';
+                                        }}
+                                    />
+                                ) : (
+                                    <div className="book-image placeholder">No Image</div>
+                                )}
+                                <div className="image-url-control">
+                                    <input
+                                        type="text"
+                                        value={editingImageUrl[book._id] || ''}
+                                        onChange={(e) => handleImageUrlChange(book._id, e.target.value)}
+                                        placeholder="Enter image URL"
+                                    />
+                                    <button
+                                        onClick={() => updateImageUrl(book._id)}
+                                        disabled={!editingImageUrl[book._id]}
+                                    >
+                                        Update
+                                    </button>
+                                </div>
+                            </td>
+                            <td>{book.title}</td>
+                            <td>{book.author}</td>
+                            <td>
+                                <div className="stock-control">
+                                    <span>{book.stockQuantity}</span>
+                                    <div className="stock-update">
+                                        <input
+                                            type="number"
+                                            min="0"
+                                            value={editingStock[book._id] || ''}
+                                            onChange={(e) => handleStockChange(book._id, e.target.value)}
+                                            placeholder="New stock"
+                                            disabled={disabledInputs[book._id]}
+                                        />
+                                        <button
+                                            onClick={() => updateStock(book._id)}
+                                            disabled={!editingStock[book._id] || disabledInputs[book._id]}
+                                        >
+                                            Update
+                                        </button>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div className="description-control">
+                                    <span>{book.description}</span>
+                                    <div className="description-update">
+                                        <textarea
+                                            value={editingDescription[book._id] || ''}
+                                            onChange={(e) => handleDescriptionChange(book._id, e.target.value)}
+                                            placeholder="Enter description"
+                                        />
+                                        <button
+                                            onClick={() => updateDescription(book._id)}
+                                            disabled={!editingDescription[book._id]}
+                                        >
+                                            Update
+                                        </button>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <button
+                                    className="delete-btn"
+                                    onClick={() => deleteBook(book._id)}
+                                >
+                                    Delete
+                                </button>
+                            </td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        </div>
+    );
 };
 
 export default InventoryList;

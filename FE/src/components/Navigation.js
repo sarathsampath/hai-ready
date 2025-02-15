@@ -21,6 +21,7 @@ const Navigation = () => {
     <nav className="navigation">
       <div className="nav-brand">Book Store</div>
       <div className="nav-links">
+        <Link to="/books" className="nav-link">Books</Link>
         {isAdmin && (
           <>
             {/* <Link to="/inventory" className="nav-link">Inventory Management</Link> */}
