@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { API_URL } from '../config';
 import './InventoryList.css';
+import AddBook from './AddBook';
 
 const InventoryList = () => {
     const [books, setBooks] = useState([]);
@@ -12,6 +13,8 @@ const InventoryList = () => {
     const [editingDescription, setEditingDescription] = useState({});
     const [successMessage, setSuccessMessage] = useState('');
     const [disabledInputs, setDisabledInputs] = useState({});
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(null);
+    const [showAddModal, setShowAddModal] = useState(false);
 
     const fetchBooks = async () => {
         try {
@@ -175,7 +178,70 @@ const InventoryList = () => {
 
     return (
         <div className="inventory-container">
-            <h2>Inventory Management</h2>
+            <div className="inventory-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                <h2>Inventory Management</h2>
+                <button
+                    className="add-book-btn"
+                    onClick={() => setShowAddModal(true)}
+                    style={{
+                        padding: '8px 16px',
+                        backgroundColor: '#4CAF50',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '4px',
+                        cursor: 'pointer'
+                    }}
+                >
+                    Add New Book
+                </button>
+            </div>
+
+            {showAddModal && (
+                <div className="modal-overlay" style={{
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    zIndex: 1000
+                }}>
+                    <div className="modal-content" style={{
+                        backgroundColor: 'white',
+                        padding: '20px',
+                        borderRadius: '8px',
+                        maxWidth: '500px',
+                        width: '90%',
+                        maxHeight: '90vh',
+                        overflowY: 'auto',
+                        position: 'relative'
+                    }}>
+                        <button
+                            className="modal-close"
+                            onClick={() => setShowAddModal(false)}
+                            style={{
+                                position: 'absolute',
+                                right: '10px',
+                                top: '10px',
+                                background: 'none',
+                                border: 'none',
+                                fontSize: '24px',
+                                cursor: 'pointer',
+                                padding: '5px 10px'
+                            }}
+                        >
+                            ×
+                        </button>
+                        <AddBook
+                            onClose={() => setShowAddModal(false)}
+                            onBookAdded={fetchBooks}
+                        />
+                    </div>
+                </div>
+            )}
 
             {successMessage && (
                 <div className="success-message">{successMessage}</div>
